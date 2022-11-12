@@ -91,42 +91,89 @@
 \tptitle{}{Lab 3: Rigol DG1022 Signal Generator command}
 
 The objective of this lab is to use SCPI commands to control the signal generator Rigol DG1022.
-A command is a particular character string, specifying a command and arguments.
-Rigol, the device manufacturer, has a detailed documentation about the command syntax that can be used with the DG1000 family.
+A command is a particular character string, specifying an instruction and arguments.
+Rigol, the device manufacturer, has a detailed documentation about the command syntax that can be used with the DG1000 family.\footnote{The following is an excerpt from “RIGOL Programming Guide, DG1000 Series Dual-Channel Function/Arbitrary Waveform Generator”, RIGOL Technologies, Inc., 2014.}
+
+\begin{leftbar}
+{\Large{\textbf{Command Syntax}}}\\
+The command systems of DG1000 present a hierarchy structure (tree system) and each command consists of a “Root” keyword and one or multiple sub-keywords. 
+The keywords are separated by “:” and are followed by the parameter settings available, “?” is added at the end of the command string to indicate a query and the command and parameter are separated by “space”.\\
+
+For example,\\
+FUNCtion:SQUare:DCYCle \{<percent>|MINimum|MAXimum\}\\
+FUNCtion:SQUare:DCYCle? [MINimum|MAXimum]
+
+\textbf{FUNCtion} is the root keyword of the command, \textbf{SQUare} and \textbf{DCYCle} are the
+second-level and third-level keywords respectively, all the keywords are separated by
+“:”. <percent> denotes the parameter that users can set; “?” denotes query; the
+command \textbf{FUNCtion:SQUare:DCYCle} and parameter are separated by “space”.\\
+
+“,” is usually used to compare multiple parameters existing in one command, for
+example,\\
+DATA VOLATILE,<value>,<value>, . . .
+\end{leftbar}
 
 
 To actually use those commands, you will need to handle VIs associated to the character strings.
-The commands are then transmitted using the VISA protocol.
-Figure~\ref{fig:VISA} shows those blocks in the control palette.
+The commands are then transmitted using the VISA protocol and are found in the functions palette “Instrument I/O > VISA” (see Figure~\ref{fig:visa}).
 The first step is to open a communication, then there must be a delay of 150ms between eaach command.
-Finally, the communication must be closed.
+Finally, the communication must be closed.\\
 
-To handle character strings, two particularly useful blocks are the ``multiline strings'' to allow the user to choose between several options through the front panel.
+\begin{figure}[ht!]
+\centering
+\includegraphics[scale=0.8]{functions-palette-visa.png}
+\caption{VISA functions palette for the block diagram.}
+\label{fig:visa}
+\end{figure}
 
-% INSERT FIGURE control palette
+To handle character strings, a particularly useful block is the “String > Additional String Functions > Pick Line” (see Figure~\ref{fig:palette-string}) to allow the user to choose between several options through the front panel.\\
 
-An other block can convert digital data into character strings for the user interface, using the following convention:
+\begin{figure}[ht!]
+\centering
+\includegraphics[scale=0.8]{functions-palette-additional-string.png}
+\caption{Additional string functions palette for the block diagram, in which can be found the “Pick Line” block.}
+\label{fig:palette-string}
+\end{figure}
+
+An other block can convert digital data into character strings for the user interface, using the following convention and the “Format Into String” block (see Figure~\vref{fig:format-into-string}):
 \begin{itemize}
   \item Specify a character for the decimal separator
-  \item Send a string linked to the command
-  \item A space
-  \item Format the number into fract/sci
+  \item Send a string linked to the command (with a space at the end)
+  \item Format the number at the input of the block into fract/sci notation
 \end{itemize}
+All of those parameters can be set through the “Edit Format String” interface opened by double-clicking on the block (see Figure~\vref{fig:format-into-string-edit}).
 
-\begin{framed}
-  Proof check this whole part, it makes no sense.
-\end{framed}
+\begin{figure}[ht!]
+\centering
+\includegraphics[scale=0.8]{functions-palette-fromat-into-string.png}
+\caption{“String” functions palette for the block diagram.}
+\label{fig:format-into-string}
+\end{figure}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\textwidth]{format-into-string-edit.png}
+\caption{String format editor and block diagram converting a simple double value into a string “VOLT <value>”.}
+\label{fig:format-into-string-edit}
+\end{figure}
 
 
 
 \section{Activation interface for the Rigol generator}
 Install the drivers for the device first.
-\begin{framed}
-Include the content of the appendix here directly.
-\end{framed}
+In LabView, navigate through the menus “Tools > Instrumentation > Find Instrument Drivers...” which lands you on a window similar to Figure~\ref{fig:labview-driver-finder}.
+Click the “Search >” button, select “rgdg1xxx Instrument Driver” and click on “Install >”\footnote{You might need to be logged in into your NI account for the search function to be available.}.
+You may find the device specific blocks in “Instrument I/O > Instr Drivers > RIGOL DG1000 Series”.
 
-Build an interface that allows the user to enable or disable the channels of the generator.
-Figure~\ref{fig:block-diagram-channel} exploits event and boolean structures to do so, may it inspire you to add a second channel.
+\begin{figure}[ht!]
+\centering
+\includegraphics[scale=.7]{LabView-driver-finder.png}
+\caption{LabView driver finder tool.}
+\label{fig:labview-driver-finder}
+\end{figure}
+
+Using VISA blocks and SCPI commands, build an interface that allows the user to enable or disable the channels of the generator\footnote{the RIGOL driver blocks already exist to vastly simplify the task, but we won't use them at the moment for the sake of the exercise.}.
+Figure~\vref{fig:block-diagram-channel} exploits event and boolean structures to do so, may it inspire you to add a second channel.
 
 \begin{figure}[ht!]
 \centering
@@ -137,7 +184,7 @@ Figure~\ref{fig:block-diagram-channel} exploits event and boolean structures to 
 
 
 \section{Rigol DG1022 Interface -- The Remake}
-Build an interface that allows to configure the Rigol generator settings, similar to Figure~\ref{fig:front-panel-Rigol}:
+Build an interface that allows to configure the Rigol generator settings, similar to Figure~\vref{fig:front-panel-Rigol}:
 \begin{itemize}
   \item Waveform function
   \item Amplitude
@@ -154,7 +201,7 @@ Implement one feature at a time and remember that you can nest your VIs.
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=.5\linewidth]{front-panel-Rigol.png}
-\caption{}
+\caption{Front panel view of a VI emulating the DG1022 physical interface.}
 \label{fig:front-panel-Rigol}
 \end{figure}
 
